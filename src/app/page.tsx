@@ -176,6 +176,7 @@ export default function Home() {
       }
 
       const shouldUseStableFee = isMiniPaySession && stableContract.length > 0;
+      const metadataUri = createMetadataUri(draft, connectedAccount);
       let hash: Hex;
 
       if (shouldUseStableFee) {
@@ -194,7 +195,7 @@ export default function Home() {
         hash = await mintAuralisNftWithStable({
           walletClient,
           contractAddress: assertAddress(stableContract, "stable Auralis contract"),
-          tokenUri: draft.tokenUri,
+          tokenUri: metadataUri,
           promptHash: draft.promptHash,
         });
       } else {
@@ -204,7 +205,7 @@ export default function Home() {
           address: nativeContract,
           abi: AURALIS_NFT_ABI,
           functionName: "mint",
-          args: [draft.tokenUri, draft.promptHash],
+          args: [metadataUri, draft.promptHash],
           value: mintFeeWei,
         });
         const gasLimit = (estimatedGas * BigInt(12)) / BigInt(10);
@@ -224,7 +225,7 @@ export default function Home() {
           address: nativeContract,
           abi: AURALIS_NFT_ABI,
           functionName: "mint",
-          args: [draft.tokenUri, draft.promptHash],
+          args: [metadataUri, draft.promptHash],
           value: mintFeeWei,
           gas: gasLimit,
         });
@@ -472,6 +473,20 @@ function formatCelo(value: bigint): string {
   const [whole, decimals = ""] = formatEther(value).split(".");
   const trimmed = decimals.slice(0, 4).replace(/0+$/, "");
   return trimmed ? `${whole}.${trimmed}` : whole;
+}
+
+function createMetadataUri(draft: AuralisDraft, creator: Address): string {
+  const origin =
+    typeof window !== "undefined"
+      ? window.location.origin
+      : (process.env.NEXT_PUBLIC_APP_URL ?? "https://auralis.app").replace(/\/$/, "");
+  const params = new URLSearchParams({
+    prompt: draft.prompt,
+    hash: draft.promptHash,
+    creator,
+  });
+
+  return `${origin.replace(/\/$/, "")}/api/nft?${params.toString()}`;
 }
 
 async function ensureCeloNetwork(provider: EthereumProvider) {

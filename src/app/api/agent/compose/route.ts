@@ -5,6 +5,7 @@ export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
+    const url = new URL(request.url);
     const body = (await request.json()) as {
       prompt?: string;
       creator?: string;
@@ -15,7 +16,7 @@ export async function POST(request: Request) {
       creator,
       agentName: "Auralis Agent",
       appName: "Auralis",
-      externalUrl: process.env.NEXT_PUBLIC_APP_URL ?? "https://auralis.app",
+      externalUrl: url.origin,
     });
 
     return NextResponse.json({
