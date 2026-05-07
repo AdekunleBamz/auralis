@@ -59,7 +59,8 @@ const chainMeta =
   configuredChainId === AURALIS_CHAIN.sepolia.id ? AURALIS_CHAIN.sepolia : AURALIS_CHAIN.mainnet;
 const configuredContract =
   process.env.NEXT_PUBLIC_AURALIS_NFT_ADDRESS ?? "0x3CB6e2fC05B6ab2A9BA2093418Befb0Ed2FE394F";
-const stableContract = process.env.NEXT_PUBLIC_AURALIS_STABLE_NFT_ADDRESS ?? "";
+const stableContract =
+  process.env.NEXT_PUBLIC_AURALIS_STABLE_NFT_ADDRESS ?? "0xd36cF3dD4F20CFCf19ED06b2fe089CBf07a94585";
 const stableFeeToken =
   process.env.NEXT_PUBLIC_AURALIS_STABLE_FEE_TOKEN ?? CELO_STABLECOINS.USDm.address;
 const stableFeeSymbol = process.env.NEXT_PUBLIC_AURALIS_STABLE_FEE_SYMBOL ?? "USDm";

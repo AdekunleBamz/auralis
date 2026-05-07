@@ -55,13 +55,13 @@ After deployment, set:
 NEXT_PUBLIC_AURALIS_NFT_ADDRESS=0xYourDeployedContract
 NEXT_PUBLIC_CELO_CHAIN_ID=42220
 NEXT_PUBLIC_AURALIS_MINT_FEE_WEI=2000000000000000
-NEXT_PUBLIC_AURALIS_STABLE_NFT_ADDRESS=
+NEXT_PUBLIC_AURALIS_STABLE_NFT_ADDRESS=0xd36cF3dD4F20CFCf19ED06b2fe089CBf07a94585
 NEXT_PUBLIC_AURALIS_STABLE_FEE_TOKEN=0x765DE816845861e75A25fCA122bb6898B8B1282a
 NEXT_PUBLIC_AURALIS_STABLE_FEE_AMOUNT=200000000000000
 NEXT_PUBLIC_AURALIS_STABLE_FEE_SYMBOL=USDm
 ```
 
-The deployed `AuralisGenesis` contract holds native CELO fees in the same contract and lets the owner or treasury call `withdraw()`. MiniPay USDm fees require deploying the SDK's `AuralisGenesisStable.sol`, then setting `NEXT_PUBLIC_AURALIS_STABLE_NFT_ADDRESS`.
+The app uses two contracts. `AuralisGenesis` handles normal CELO wallet minting, while `AuralisGenesisStable` handles MiniPay USDm minting. Both contracts hold their own fees and let the owner or treasury withdraw later.
 
 ## Agent File
 
