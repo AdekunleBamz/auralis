@@ -13,15 +13,16 @@ import {
   Wand2,
 } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
-import { createPublicClient, createWalletClient, custom, http, type Address, type Hex } from "viem";
+import { createPublicClient, createWalletClient, custom, formatEther, http, type Address, type Hex } from "viem";
 import { celo, celoSepolia } from "viem/chains";
 import {
   AURALIS_CHAIN,
+  AURALIS_NFT_ABI,
   CELO_STABLECOINS,
   approveAuralisStableFee,
   assertAddress,
-  mintAuralisNft,
   mintAuralisNftWithStable,
+  normalizePrompt,
   type AuralisDraft,
 } from "@bamzzstudio/auralis-sdk";
 
@@ -80,6 +81,7 @@ export default function Home() {
     if (!account) return "Not connected";
     return `${account.slice(0, 6)}...${account.slice(-4)}`;
   }, [account]);
+  const draftReady = Boolean(draft && draft.prompt === normalizePrompt(prompt));
 
   const contractReady = configuredContract.length > 0;
   const explorerTx = txHash ? `${chainMeta.explorerUrl}/tx/${txHash}` : "";
@@ -141,8 +143,9 @@ export default function Home() {
     setTxHash(null);
 
     try {
-      const activeDraft = draft ?? (await composeArtifact());
-      if (!activeDraft) return;
+      if (!draft || !draftReady) {
+        throw new Error("Shape this prompt before minting.");
+      }
 
       if (!configuredContract) {
         throw new Error("Add NEXT_PUBLIC_AURALIS_NFT_ADDRESS after deploying the contract");
@@ -154,7 +157,8 @@ export default function Home() {
       })) as Address[];
 
       await ensureCeloNetwork(provider);
-      setAccount(assertAddress(accounts[0], "wallet"));
+      const connectedAccount = assertAddress(accounts[0], "wallet");
+      setAccount(connectedAccount);
       setIsMinting(true);
       setStatus("Confirm mint in wallet");
 
@@ -166,7 +170,12 @@ export default function Home() {
         chain: selectedChain,
         transport: http(chainMeta.rpcUrl),
       });
-      const shouldUseStableFee = isMiniPay(provider) && stableContract.length > 0;
+      const isMiniPaySession = isMiniPay(provider);
+      if (isMiniPaySession && stableContract.length === 0) {
+        throw new Error("MiniPay stable mint is not configured. Add NEXT_PUBLIC_AURALIS_STABLE_NFT_ADDRESS.");
+      }
+
+      const shouldUseStableFee = isMiniPaySession && stableContract.length > 0;
       let hash: Hex;
 
       if (shouldUseStableFee) {
@@ -185,16 +194,39 @@ export default function Home() {
         hash = await mintAuralisNftWithStable({
           walletClient,
           contractAddress: assertAddress(stableContract, "stable Auralis contract"),
-          tokenUri: activeDraft.tokenUri,
-          promptHash: activeDraft.promptHash,
+          tokenUri: draft.tokenUri,
+          promptHash: draft.promptHash,
         });
       } else {
-        hash = await mintAuralisNft({
-          walletClient,
-          contractAddress: assertAddress(configuredContract, "Auralis contract"),
-          tokenUri: activeDraft.tokenUri,
-          promptHash: activeDraft.promptHash,
+        const nativeContract = assertAddress(configuredContract, "Auralis contract");
+        const estimatedGas = await publicClient.estimateContractGas({
+          account: connectedAccount,
+          address: nativeContract,
+          abi: AURALIS_NFT_ABI,
+          functionName: "mint",
+          args: [draft.tokenUri, draft.promptHash],
           value: mintFeeWei,
+        });
+        const gasLimit = (estimatedGas * BigInt(12)) / BigInt(10);
+        const gasPrice = await publicClient.getGasPrice();
+        const requiredBalance = mintFeeWei + gasLimit * gasPrice;
+        const balance = await publicClient.getBalance({ address: connectedAccount });
+
+        if (balance < requiredBalance) {
+          throw new Error(
+            `Connected wallet has ${formatCelo(balance)} CELO. Minting needs about ${formatCelo(requiredBalance)} CELO including gas.`,
+          );
+        }
+
+        hash = await walletClient.writeContract({
+          account: connectedAccount,
+          chain: selectedChain,
+          address: nativeContract,
+          abi: AURALIS_NFT_ABI,
+          functionName: "mint",
+          args: [draft.tokenUri, draft.promptHash],
+          value: mintFeeWei,
+          gas: gasLimit,
         });
       }
 
@@ -219,8 +251,8 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen px-4 py-4 text-[#151716] sm:px-6 lg:px-8">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4">
+    <main className="min-h-screen overflow-x-hidden px-4 py-4 text-[#151716] sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-w-0 w-full max-w-6xl flex-col gap-4">
         <header className="flex items-center justify-between gap-3 border-b border-black/10 pb-4">
           <div className="flex min-w-0 items-center gap-3">
             <Image src="/auralis-logo.svg" alt="Auralis" width={52} height={52} priority />
@@ -240,8 +272,8 @@ export default function Home() {
           </button>
         </header>
 
-        <section className="grid gap-4 lg:grid-cols-[1.02fr_0.98fr]">
-          <div className="rounded-lg border border-black/10 bg-[#fffdf6]/92 p-4 shadow-sm sm:p-5">
+        <section className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)]">
+          <div className="min-w-0 rounded-lg border border-black/10 bg-[#fffdf6]/92 p-4 shadow-sm sm:p-5">
             <div className="mb-4 flex flex-wrap items-center gap-2">
               <StatusPill icon={<Radio size={14} />} label={status} />
               <StatusPill icon={<Coins size={14} />} label={chainMeta.name} />
@@ -255,7 +287,13 @@ export default function Home() {
             <textarea
               id="prompt"
               value={prompt}
-              onChange={(event) => setPrompt(event.target.value)}
+              onChange={(event) => {
+                setPrompt(event.target.value);
+                setDraft(null);
+                setTxHash(null);
+                setError("");
+                setStatus("Ready");
+              }}
               className="min-h-40 w-full resize-none rounded-lg border border-black/15 bg-white px-4 py-3 text-base font-semibold leading-7 outline-none transition focus:border-[#19b885] focus:ring-4 focus:ring-[#19b885]/15"
               maxLength={420}
             />
@@ -267,7 +305,10 @@ export default function Home() {
                   type="button"
                   onClick={() => {
                     setPrompt(example);
-                    void composeArtifact(example);
+                    setDraft(null);
+                    setTxHash(null);
+                    setError("");
+                    setStatus("Ready");
                   }}
                   className="min-h-16 rounded-lg border border-black/10 bg-white px-3 py-2 text-left text-xs font-bold leading-5 text-black/70 transition hover:border-[#19b885] hover:text-black"
                 >
@@ -277,7 +318,7 @@ export default function Home() {
             </div>
 
             {error ? (
-              <p className="mt-4 rounded-lg border border-[#ef5f64]/25 bg-[#fff0ee] px-3 py-2 text-sm font-bold text-[#982b30]">
+              <p className="mt-4 max-w-full overflow-hidden break-words rounded-lg border border-[#ef5f64]/25 bg-[#fff0ee] px-3 py-2 text-sm font-bold text-[#982b30] [overflow-wrap:anywhere]">
                 {error}
               </p>
             ) : null}
@@ -295,7 +336,8 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => void mintArtifact()}
-                disabled={isMinting || isComposing || prompt.trim().length === 0}
+                disabled={isMinting || isComposing || prompt.trim().length === 0 || !draftReady}
+                title={draftReady ? "Mint" : "Shape this prompt before minting"}
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-[#151716] px-4 text-sm font-black text-white shadow-sm transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-55"
               >
                 {isMinting ? <LoaderCircle className="animate-spin" size={18} /> : <Sparkles size={18} />}
@@ -304,7 +346,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="rounded-lg border border-black/10 bg-[#151716] p-4 text-white shadow-sm sm:p-5">
+          <div className="min-w-0 rounded-lg border border-black/10 bg-[#151716] p-4 text-white shadow-sm sm:p-5">
             <div className="mb-4 flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-xs font-black uppercase tracking-normal text-white/[0.52]">Preview</p>
@@ -426,6 +468,12 @@ function isMiniPay(provider: EthereumProvider): boolean {
   return Boolean(provider.isMiniPay || /MiniPay/i.test(window.navigator.userAgent));
 }
 
+function formatCelo(value: bigint): string {
+  const [whole, decimals = ""] = formatEther(value).split(".");
+  const trimmed = decimals.slice(0, 4).replace(/0+$/, "");
+  return trimmed ? `${whole}.${trimmed}` : whole;
+}
+
 async function ensureCeloNetwork(provider: EthereumProvider) {
   if (isMiniPay(provider)) {
     return;
@@ -465,14 +513,28 @@ async function ensureCeloNetwork(provider: EthereumProvider) {
 }
 
 function readError(error: unknown, fallback: string) {
+  let message = fallback;
+
   if (error instanceof Error && error.message) {
-    return error.message;
+    message = error.message;
+  } else if (typeof error === "object" && error && "message" in error) {
+    message = String((error as { message?: unknown }).message) || fallback;
   }
 
-  if (typeof error === "object" && error && "message" in error) {
-    const message = String((error as { message?: unknown }).message);
-    return message || fallback;
+  const compact = message.replace(/\s+/g, " ").trim();
+  const lower = compact.toLowerCase();
+
+  if (lower.includes("user rejected") || lower.includes("user denied") || lower.includes("rejected the request")) {
+    return "Wallet request was rejected.";
   }
 
-  return fallback;
+  if (lower.includes("insufficient funds") || lower.includes("not enough gas") || lower.includes("gas balance")) {
+    return "Connected wallet does not have enough native CELO for the mint fee and gas.";
+  }
+
+  if (lower.includes("wallet_switchethereumchain")) {
+    return "This wallet cannot switch networks automatically. Open the app on Celo and try again.";
+  }
+
+  return compact.length > 260 ? `${compact.slice(0, 260)}...` : compact;
 }
