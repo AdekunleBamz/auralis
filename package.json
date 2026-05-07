@@ -17,7 +17,7 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@bamzzstudio/auralis-sdk": "^0.1.3",
+    "@bamzzstudio/auralis-sdk": "^0.1.4",
     "lucide-react": "^0.561.0",
     "next": "16.2.5",
     "react": "19.2.4",
