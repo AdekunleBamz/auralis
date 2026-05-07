@@ -208,7 +208,7 @@ export default function Home() {
           args: [metadataUri, draft.promptHash],
           value: mintFeeWei,
         });
-        const gasLimit = (estimatedGas * BigInt(12)) / BigInt(10);
+        const gasLimit = (estimatedGas * BigInt(11)) / BigInt(10);
         const gasPrice = await publicClient.getGasPrice();
         const requiredBalance = mintFeeWei + gasLimit * gasPrice;
         const balance = await publicClient.getBalance({ address: connectedAccount });
