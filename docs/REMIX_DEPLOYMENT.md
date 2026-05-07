@@ -19,13 +19,29 @@ name_: Auralis
 symbol_: AURA
 initialOwner_: your deployer wallet address
 treasury_: your payout wallet address
-mintFeeWei_: 0
+mintFeeWei_: 2000000000000000
+```
+
+Current deployed contract:
+
+```text
+0x3CB6e2fC05B6ab2A9BA2093418Befb0Ed2FE394F
+```
+
+For the deployed contract, call this in Remix if the constructor fee was `0`:
+
+```text
+setMintFee(2000000000000000)
 ```
 
 After deploying on Celo mainnet, add the deployed address to `.env.local`:
 
 ```bash
-NEXT_PUBLIC_AURALIS_NFT_ADDRESS=0xYourDeployedContract
+NEXT_PUBLIC_AURALIS_NFT_ADDRESS=0x3CB6e2fC05B6ab2A9BA2093418Befb0Ed2FE394F
 NEXT_PUBLIC_CELO_CHAIN_ID=42220
-NEXT_PUBLIC_AURALIS_MINT_FEE_WEI=0
+NEXT_PUBLIC_AURALIS_MINT_FEE_WEI=2000000000000000
 ```
+
+`AuralisGenesis` holds CELO fees directly. The owner or treasury can call `withdraw()` later.
+
+MiniPay USDm fees need `AuralisGenesisStable.sol` from the SDK repo, because the deployed `AuralisGenesis` contract only accepts native CELO mint fees.

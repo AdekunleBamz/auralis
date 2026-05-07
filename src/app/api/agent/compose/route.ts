@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { assertAddress, createAuralisDraft, ERC8004_CELO } from "@auralis/sdk";
+import { assertAddress, createAuralisDraft, ERC8004_CELO } from "@bamzzstudio/auralis-sdk";
 
 export const runtime = "nodejs";
 

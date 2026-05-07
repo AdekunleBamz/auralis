@@ -17,10 +17,13 @@ import { createPublicClient, createWalletClient, custom, http, type Address, typ
 import { celo, celoSepolia } from "viem/chains";
 import {
   AURALIS_CHAIN,
+  CELO_STABLECOINS,
+  approveAuralisStableFee,
   assertAddress,
   mintAuralisNft,
+  mintAuralisNftWithStable,
   type AuralisDraft,
-} from "@auralis/sdk";
+} from "@bamzzstudio/auralis-sdk";
 
 type ComposeResponse =
   | {
@@ -54,8 +57,15 @@ const configuredChainId = Number(process.env.NEXT_PUBLIC_CELO_CHAIN_ID ?? "42220
 const selectedChain = configuredChainId === AURALIS_CHAIN.sepolia.id ? celoSepolia : celo;
 const chainMeta =
   configuredChainId === AURALIS_CHAIN.sepolia.id ? AURALIS_CHAIN.sepolia : AURALIS_CHAIN.mainnet;
-const configuredContract = process.env.NEXT_PUBLIC_AURALIS_NFT_ADDRESS ?? "";
-const mintFeeWei = BigInt(process.env.NEXT_PUBLIC_AURALIS_MINT_FEE_WEI ?? "0");
+const configuredContract =
+  process.env.NEXT_PUBLIC_AURALIS_NFT_ADDRESS ?? "0x3CB6e2fC05B6ab2A9BA2093418Befb0Ed2FE394F";
+const stableContract = process.env.NEXT_PUBLIC_AURALIS_STABLE_NFT_ADDRESS ?? "";
+const stableFeeToken =
+  process.env.NEXT_PUBLIC_AURALIS_STABLE_FEE_TOKEN ?? CELO_STABLECOINS.USDm.address;
+const stableFeeSymbol = process.env.NEXT_PUBLIC_AURALIS_STABLE_FEE_SYMBOL ?? "USDm";
+const stableFeeAmount = BigInt(process.env.NEXT_PUBLIC_AURALIS_STABLE_FEE_AMOUNT ?? "200000000000000");
+const mintFeeWei = BigInt(process.env.NEXT_PUBLIC_AURALIS_MINT_FEE_WEI ?? "2000000000000000");
+const mintFeeLabel = "0.002 CELO";
 
 export default function Home() {
   const [prompt, setPrompt] = useState(DEFAULT_PROMPT);
@@ -153,21 +163,45 @@ export default function Home() {
         chain: selectedChain,
         transport: custom(provider),
       });
-      const hash = await mintAuralisNft({
-        walletClient,
-        contractAddress: assertAddress(configuredContract, "Auralis contract"),
-        tokenUri: activeDraft.tokenUri,
-        promptHash: activeDraft.promptHash,
-        value: mintFeeWei,
-      });
-
-      setTxHash(hash);
-      setStatus("Waiting for Celo confirmation");
-
       const publicClient = createPublicClient({
         chain: selectedChain,
         transport: http(chainMeta.rpcUrl),
       });
+      const shouldUseStableFee = isMiniPay(provider) && stableContract.length > 0;
+      let hash: Hex;
+
+      if (shouldUseStableFee) {
+        setStatus(`Approve ${stableFeeSymbol} fee`);
+        const approvalHash = await approveAuralisStableFee({
+          walletClient,
+          tokenAddress: assertAddress(stableFeeToken, "stable fee token"),
+          spenderAddress: assertAddress(stableContract, "stable Auralis contract"),
+          amount: stableFeeAmount,
+        });
+
+        setStatus("Waiting for fee approval");
+        await publicClient.waitForTransactionReceipt({ hash: approvalHash });
+
+        setStatus(`Confirm ${stableFeeSymbol} mint`);
+        hash = await mintAuralisNftWithStable({
+          walletClient,
+          contractAddress: assertAddress(stableContract, "stable Auralis contract"),
+          tokenUri: activeDraft.tokenUri,
+          promptHash: activeDraft.promptHash,
+        });
+      } else {
+        hash = await mintAuralisNft({
+          walletClient,
+          contractAddress: assertAddress(configuredContract, "Auralis contract"),
+          tokenUri: activeDraft.tokenUri,
+          promptHash: activeDraft.promptHash,
+          value: mintFeeWei,
+        });
+      }
+
+      setTxHash(hash);
+      setStatus("Waiting for Celo confirmation");
+
       await publicClient.waitForTransactionReceipt({ hash });
 
       setStatus("Minted on Celo");
@@ -212,6 +246,7 @@ export default function Home() {
             <div className="mb-4 flex flex-wrap items-center gap-2">
               <StatusPill icon={<Radio size={14} />} label={status} />
               <StatusPill icon={<Coins size={14} />} label={chainMeta.name} />
+              <StatusPill icon={<Coins size={14} />} label={mintFeeLabel} />
               <StatusPill icon={<BadgeCheck size={14} />} label={contractReady ? "Contract set" : "Deploy pending"} />
             </div>
 

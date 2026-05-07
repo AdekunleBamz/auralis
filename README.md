@@ -23,10 +23,10 @@ The app runs on:
 http://localhost:3000
 ```
 
-The app installs `@auralis/sdk` directly from:
+The app installs the published SDK from npm:
 
 ```text
-https://github.com/adekunlebamz/auralis-sdk
+@bamzzstudio/auralis-sdk
 ```
 
 For active SDK development from the sibling folder, run:
@@ -54,8 +54,14 @@ After deployment, set:
 ```bash
 NEXT_PUBLIC_AURALIS_NFT_ADDRESS=0xYourDeployedContract
 NEXT_PUBLIC_CELO_CHAIN_ID=42220
-NEXT_PUBLIC_AURALIS_MINT_FEE_WEI=0
+NEXT_PUBLIC_AURALIS_MINT_FEE_WEI=2000000000000000
+NEXT_PUBLIC_AURALIS_STABLE_NFT_ADDRESS=
+NEXT_PUBLIC_AURALIS_STABLE_FEE_TOKEN=0x765DE816845861e75A25fCA122bb6898B8B1282a
+NEXT_PUBLIC_AURALIS_STABLE_FEE_AMOUNT=200000000000000
+NEXT_PUBLIC_AURALIS_STABLE_FEE_SYMBOL=USDm
 ```
+
+The deployed `AuralisGenesis` contract holds native CELO fees in the same contract and lets the owner or treasury call `withdraw()`. MiniPay USDm fees require deploying the SDK's `AuralisGenesisStable.sol`, then setting `NEXT_PUBLIC_AURALIS_STABLE_NFT_ADDRESS`.
 
 ## Agent File
 
