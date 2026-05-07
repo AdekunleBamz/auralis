@@ -1,0 +1,25 @@
+{
+  "type": "Agent",
+  "name": "Auralis Agent",
+  "description": "Composes prompt-shaped NFT metadata and artwork for MiniPay users minting Auralis artifacts on Celo.",
+  "image": "https://auralis.app/auralis-logo.svg",
+  "endpoints": [
+    {
+      "type": "https",
+      "url": "https://auralis.app/api/agent/compose"
+    },
+    {
+      "type": "wallet",
+      "address": "0x0000000000000000000000000000000000000000",
+      "chainId": 42220
+    }
+  ],
+  "supportedTrust": ["reputation", "validation"],
+  "chains": [
+    {
+      "name": "Celo",
+      "chainId": 42220
+    }
+  ],
+  "protocols": ["ERC-8004"]
+}

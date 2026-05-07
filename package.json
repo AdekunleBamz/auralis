@@ -1,0 +1,38 @@
+{
+  "name": "auralis",
+  "version": "0.1.0",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adekunlebamz/auralis.git"
+  },
+  "bugs": {
+    "url": "https://github.com/adekunlebamz/auralis/issues"
+  },
+  "homepage": "https://github.com/adekunlebamz/auralis#readme",
+  "scripts": {
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@auralis/sdk": "github:adekunlebamz/auralis-sdk",
+    "lucide-react": "^0.561.0",
+    "next": "16.2.5",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "viem": "^2.43.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "babel-plugin-react-compiler": "1.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.5",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
