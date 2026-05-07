@@ -34,6 +34,10 @@ yarn-error.log*
 .env*
 !.env.example
 
+# local Auralis test wallet harness
+/.aura-test/
+/.env.aura-test.local
+
 # vercel
 .vercel
 
