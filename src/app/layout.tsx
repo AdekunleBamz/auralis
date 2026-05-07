@@ -18,6 +18,10 @@ export const metadata: Metadata = {
   icons: {
     icon: "/auralis-logo.svg",
   },
+  other: {
+    "talentapp:project_verification":
+      "48d992a49bb7ac566bdcabd1c5a5db30f4b6b0a66fabb399a2ed614519d2ed4031dee95b78b40669d9d5ded002c26632a9a6e5d8752e7332d3500b410c8bcfab",
+  },
 };
 
 export default function RootLayout({
