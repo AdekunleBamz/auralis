@@ -94,7 +94,7 @@ export default function Home() {
         method: "eth_requestAccounts",
       })) as Address[];
 
-      await switchToCelo(provider);
+      await ensureCeloNetwork(provider);
       setAccount(assertAddress(accounts[0], "wallet"));
       setStatus(isMiniPay(provider) ? "MiniPay connected" : "Wallet connected");
     } catch (connectError) {
@@ -153,7 +153,7 @@ export default function Home() {
         method: "eth_requestAccounts",
       })) as Address[];
 
-      await switchToCelo(provider);
+      await ensureCeloNetwork(provider);
       setAccount(assertAddress(accounts[0], "wallet"));
       setIsMinting(true);
       setStatus("Confirm mint in wallet");
@@ -426,7 +426,11 @@ function isMiniPay(provider: EthereumProvider): boolean {
   return Boolean(provider.isMiniPay || /MiniPay/i.test(window.navigator.userAgent));
 }
 
-async function switchToCelo(provider: EthereumProvider) {
+async function ensureCeloNetwork(provider: EthereumProvider) {
+  if (isMiniPay(provider)) {
+    return;
+  }
+
   const chainId = `0x${configuredChainId.toString(16)}`;
 
   try {
