@@ -415,7 +415,7 @@ export default function Home() {
             <div className="mb-4 flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-xs font-black uppercase tracking-normal text-white/[0.52]">Preview</p>
-                <h2 className="truncate text-xl font-black">{draft?.name ?? "Unshaped Artifact"}</h2>
+                <h2 className="truncate text-xl font-black">{draft ? "Artifact ready" : "Unshaped Artifact"}</h2>
               </div>
               <Image src="/auralis-logo.svg" alt="" width={38} height={38} className="rounded-md bg-white/90" />
             </div>
@@ -438,12 +438,18 @@ export default function Home() {
               )}
             </div>
 
-            <div className="mt-4 grid gap-2 text-sm">
-              <DataRow label="Wallet" value={shortAccount} />
-              <DataRow label="Hash" value={draft ? shortId(draft.promptHash) : "Waiting"} action={draft ? copyHash : undefined} />
+            <div className="mt-4 grid gap-2 rounded-lg border border-white/10 bg-black/10 p-2 text-sm">
+              <DataRow label="Wallet" value={shortAccount} fullValue={account ?? undefined} />
+              <DataRow
+                label="Hash"
+                value={draft ? shortId(draft.promptHash) : "Waiting"}
+                fullValue={draft?.promptHash}
+                action={draft ? copyHash : undefined}
+              />
               <DataRow
                 label="Mint"
-                value={txHash ? shortId(txHash) : "No transaction yet"}
+                value={txHash ? shortId(txHash) : "No mint yet"}
+                fullValue={txHash ?? undefined}
                 href={explorerTx}
               />
             </div>
@@ -473,24 +479,28 @@ function StatusPill({ icon, label }: { icon: ReactNode; label: string }) {
 function DataRow({
   label,
   value,
+  fullValue,
   href,
   action,
 }: {
   label: string;
   value: string;
+  fullValue?: string;
   href?: string;
   action?: () => void;
 }) {
+  const title = fullValue ?? value;
+
   return (
-    <div className="grid min-h-14 grid-cols-[4.25rem_minmax(0,1fr)] items-center gap-3 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2">
+    <div className="grid min-h-11 grid-cols-[3.9rem_minmax(0,1fr)] items-center gap-2 rounded-md px-2">
       <span className="text-xs font-black uppercase tracking-normal text-white/50">{label}</span>
       {href ? (
         <a
           href={href}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex min-w-0 items-center justify-end gap-2 text-right font-mono text-xs font-bold tabular-nums text-[#f6b847] sm:text-sm"
-          title={value}
+          className="inline-flex w-full min-w-0 items-center justify-end gap-2 overflow-hidden rounded-md bg-white/[0.07] px-2 py-1.5 text-right font-mono text-xs font-bold tabular-nums text-[#f6b847]"
+          title={title}
         >
           <span className="min-w-0 truncate">{value}</span>
           <ExternalLink className="shrink-0" size={14} />
@@ -499,14 +509,17 @@ function DataRow({
         <button
           type="button"
           onClick={action}
-          className="inline-flex min-w-0 items-center justify-end gap-2 text-right font-mono text-xs font-bold tabular-nums text-[#f6b847] sm:text-sm"
-          title={value}
+          className="inline-flex w-full min-w-0 items-center justify-end gap-2 overflow-hidden rounded-md bg-white/[0.07] px-2 py-1.5 text-right font-mono text-xs font-bold tabular-nums text-[#f6b847]"
+          title={title}
         >
           <span className="min-w-0 truncate">{value}</span>
           <Copy className="shrink-0" size={14} />
         </button>
       ) : (
-        <span className="min-w-0 truncate text-right font-mono text-xs font-bold tabular-nums text-white/[0.78] sm:text-sm" title={value}>
+        <span
+          className="w-full min-w-0 truncate overflow-hidden rounded-md bg-white/[0.07] px-2 py-1.5 text-right font-mono text-xs font-bold tabular-nums text-white/[0.78]"
+          title={title}
+        >
           {value}
         </span>
       )}
