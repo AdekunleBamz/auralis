@@ -57,6 +57,10 @@ NEXT_PUBLIC_AURALIS_STABLE_FEE_SYMBOL=USDm
 
 The app uses two contracts. `AuralisGenesis` handles normal CELO wallet minting, while `AuralisGenesisStable` handles MiniPay USDm minting. Both contracts hold their own fees and let the owner or treasury withdraw later.
 
+## MiniPay
+
+Auralis defaults to USDm for MiniPay minting. See [docs/MINIPAY_COMPATIBILITY.md](docs/MINIPAY_COMPATIBILITY.md).
+
 ## Agent File
 
 ERC-8004 starter metadata is served from:

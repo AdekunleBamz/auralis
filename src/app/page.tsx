@@ -18,13 +18,13 @@ import { celo, celoSepolia } from "viem/chains";
 import {
   AURALIS_CHAIN,
   AURALIS_NFT_ABI,
-  CELO_STABLECOINS,
   approveAuralisStableFee,
   assertAddress,
   mintAuralisNftWithStable,
   normalizePrompt,
   type AuralisDraft,
 } from "@bamzzstudio/auralis-sdk";
+import { AURALIS_MINIPAY_FEE, AURALIS_MINIPAY_FEE_TOKEN } from "@/lib/celo";
 
 type ComposeResponse =
   | {
@@ -61,9 +61,9 @@ const chainMeta =
 const configuredContract = process.env.NEXT_PUBLIC_AURALIS_NFT_ADDRESS || "";
 const stableContract = process.env.NEXT_PUBLIC_AURALIS_STABLE_NFT_ADDRESS || "";
 const stableFeeToken =
-  process.env.NEXT_PUBLIC_AURALIS_STABLE_FEE_TOKEN || CELO_STABLECOINS.USDm.address;
-const stableFeeSymbol = process.env.NEXT_PUBLIC_AURALIS_STABLE_FEE_SYMBOL || "USDm";
-const stableFeeAmount = BigInt(process.env.NEXT_PUBLIC_AURALIS_STABLE_FEE_AMOUNT || "200000000000000");
+  process.env.NEXT_PUBLIC_AURALIS_STABLE_FEE_TOKEN || AURALIS_MINIPAY_FEE_TOKEN.address;
+const stableFeeSymbol = process.env.NEXT_PUBLIC_AURALIS_STABLE_FEE_SYMBOL || AURALIS_MINIPAY_FEE.symbol;
+const stableFeeAmount = BigInt(process.env.NEXT_PUBLIC_AURALIS_STABLE_FEE_AMOUNT || AURALIS_MINIPAY_FEE.amount);
 const mintFeeWei = BigInt(process.env.NEXT_PUBLIC_AURALIS_MINT_FEE_WEI || "2000000000000000");
 const mintFeeLabel = "0.002 CELO";
 
