@@ -12,7 +12,7 @@ import {
   Wallet,
   Wand2,
 } from "lucide-react";
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createPublicClient, createWalletClient, custom, formatEther, http, type Address, type Hex } from "viem";
 import { celo, celoSepolia } from "viem/chains";
 import {
@@ -46,6 +46,11 @@ type EthereumProvider = {
   request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
 };
 
+type MintSuccess = {
+  txHash: Hex;
+  explorerUrl: string;
+};
+
 const DEFAULT_PROMPT =
   "a radiant market badge for makers who help local merchants accept stablecoin payments";
 const EXAMPLES = [
@@ -73,9 +78,11 @@ export default function Home() {
   const [draft, setDraft] = useState<AuralisDraft | null>(null);
   const [status, setStatus] = useState("Ready");
   const [error, setError] = useState("");
+  const [mintSuccess, setMintSuccess] = useState<MintSuccess | null>(null);
   const [txHash, setTxHash] = useState<Hex | null>(null);
   const [isComposing, setIsComposing] = useState(false);
   const [isMinting, setIsMinting] = useState(false);
+  const successTimerRef = useRef<number | null>(null);
 
   const shortAccount = useMemo(() => {
     if (!account) return "Not connected";
@@ -85,6 +92,35 @@ export default function Home() {
 
   const contractReady = configuredContract.length > 0;
   const explorerTx = txHash ? `${chainMeta.explorerUrl}/tx/${txHash}` : "";
+
+  useEffect(() => {
+    return () => {
+      if (successTimerRef.current) {
+        window.clearTimeout(successTimerRef.current);
+      }
+    };
+  }, []);
+
+  function clearMintSuccess() {
+    if (successTimerRef.current) {
+      window.clearTimeout(successTimerRef.current);
+      successTimerRef.current = null;
+    }
+
+    setMintSuccess(null);
+  }
+
+  function showMintSuccess(hash: Hex) {
+    clearMintSuccess();
+    setMintSuccess({
+      txHash: hash,
+      explorerUrl: `${chainMeta.explorerUrl}/tx/${hash}`,
+    });
+    successTimerRef.current = window.setTimeout(() => {
+      setMintSuccess(null);
+      successTimerRef.current = null;
+    }, 7000);
+  }
 
   async function connectWallet() {
     setError("");
@@ -107,6 +143,7 @@ export default function Home() {
 
   async function composeArtifact(nextPrompt = prompt) {
     setError("");
+    clearMintSuccess();
     setIsComposing(true);
     setStatus("Agent shaping artifact");
 
@@ -140,6 +177,7 @@ export default function Home() {
 
   async function mintArtifact() {
     setError("");
+    clearMintSuccess();
     setTxHash(null);
 
     try {
@@ -236,6 +274,7 @@ export default function Home() {
 
       await publicClient.waitForTransactionReceipt({ hash });
 
+      showMintSuccess(hash);
       setStatus("Minted on Celo");
     } catch (mintError) {
       setError(readError(mintError, "Mint failed"));
@@ -293,6 +332,7 @@ export default function Home() {
                 setDraft(null);
                 setTxHash(null);
                 setError("");
+                clearMintSuccess();
                 setStatus("Ready");
               }}
               className="min-h-40 w-full resize-none rounded-lg border border-black/15 bg-white px-4 py-3 text-base font-semibold leading-7 outline-none transition focus:border-[#19b885] focus:ring-4 focus:ring-[#19b885]/15"
@@ -309,6 +349,7 @@ export default function Home() {
                     setDraft(null);
                     setTxHash(null);
                     setError("");
+                    clearMintSuccess();
                     setStatus("Ready");
                   }}
                   className="min-h-16 rounded-lg border border-black/10 bg-white px-3 py-2 text-left text-xs font-bold leading-5 text-black/70 transition hover:border-[#19b885] hover:text-black"
@@ -322,6 +363,29 @@ export default function Home() {
               <p className="mt-4 max-w-full overflow-hidden break-words rounded-lg border border-[#ef5f64]/25 bg-[#fff0ee] px-3 py-2 text-sm font-bold text-[#982b30] [overflow-wrap:anywhere]">
                 {error}
               </p>
+            ) : null}
+
+            {mintSuccess ? (
+              <div className="mt-4 flex flex-col gap-3 rounded-lg border border-[#19b885]/25 bg-[#ecfff7] px-3 py-3 text-sm font-bold text-[#0e6f52] sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex min-w-0 items-center gap-2">
+                  <BadgeCheck className="shrink-0" size={18} />
+                  <div className="min-w-0">
+                    <p className="truncate">Minted on Celo</p>
+                    <p className="truncate text-xs text-[#0e6f52]/70">
+                      Your NFT artifact is confirmed. You can shape another prompt.
+                    </p>
+                  </div>
+                </div>
+                <a
+                  href={mintSuccess.explorerUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-[#151716] px-3 py-2 text-xs font-black text-white"
+                >
+                  View
+                  <ExternalLink size={14} />
+                </a>
+              </div>
             ) : null}
 
             <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr]">
