@@ -440,10 +440,10 @@ export default function Home() {
 
             <div className="mt-4 grid gap-2 text-sm">
               <DataRow label="Wallet" value={shortAccount} />
-              <DataRow label="Hash" value={draft?.promptHash ?? "Waiting"} action={draft ? copyHash : undefined} />
+              <DataRow label="Hash" value={draft ? shortId(draft.promptHash) : "Waiting"} action={draft ? copyHash : undefined} />
               <DataRow
                 label="Mint"
-                value={txHash ? `${txHash.slice(0, 10)}...${txHash.slice(-8)}` : "No transaction yet"}
+                value={txHash ? shortId(txHash) : "No transaction yet"}
                 href={explorerTx}
               />
             </div>
@@ -482,32 +482,40 @@ function DataRow({
   action?: () => void;
 }) {
   return (
-    <div className="flex min-h-12 items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.06] px-3">
-      <span className="shrink-0 text-xs font-black uppercase tracking-normal text-white/50">{label}</span>
+    <div className="grid min-h-14 grid-cols-[4.25rem_minmax(0,1fr)] items-center gap-3 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2">
+      <span className="text-xs font-black uppercase tracking-normal text-white/50">{label}</span>
       {href ? (
         <a
           href={href}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex min-w-0 items-center gap-2 truncate text-right font-bold text-[#f6b847]"
+          className="inline-flex min-w-0 items-center justify-end gap-2 text-right font-mono text-xs font-bold tabular-nums text-[#f6b847] sm:text-sm"
+          title={value}
         >
-          <span className="truncate">{value}</span>
-          <ExternalLink size={14} />
+          <span className="min-w-0 truncate">{value}</span>
+          <ExternalLink className="shrink-0" size={14} />
         </a>
       ) : action ? (
         <button
           type="button"
           onClick={action}
-          className="inline-flex min-w-0 items-center gap-2 truncate text-right font-bold text-[#f6b847]"
+          className="inline-flex min-w-0 items-center justify-end gap-2 text-right font-mono text-xs font-bold tabular-nums text-[#f6b847] sm:text-sm"
+          title={value}
         >
-          <span className="truncate">{value}</span>
-          <Copy size={14} />
+          <span className="min-w-0 truncate">{value}</span>
+          <Copy className="shrink-0" size={14} />
         </button>
       ) : (
-        <span className="min-w-0 truncate text-right font-bold text-white/[0.78]">{value}</span>
+        <span className="min-w-0 truncate text-right font-mono text-xs font-bold tabular-nums text-white/[0.78] sm:text-sm" title={value}>
+          {value}
+        </span>
       )}
     </div>
   );
+}
+
+function shortId(value: string): string {
+  return value.length <= 22 ? value : `${value.slice(0, 10)}...${value.slice(-8)}`;
 }
 
 function Signal({ label, value }: { label: string; value: string }) {
