@@ -70,7 +70,7 @@ const stableFeeToken =
 const stableFeeSymbol = process.env.NEXT_PUBLIC_AURALIS_STABLE_FEE_SYMBOL || AURALIS_MINIPAY_FEE.symbol;
 const stableFeeAmount = BigInt(process.env.NEXT_PUBLIC_AURALIS_STABLE_FEE_AMOUNT || AURALIS_MINIPAY_FEE.amount);
 const mintFeeWei = BigInt(process.env.NEXT_PUBLIC_AURALIS_MINT_FEE_WEI || "2000000000000000");
-const mintFeeLabel = "0.002 CELO";
+const mintFeeLabel = "0.002 CELO + gas";
 
 export default function Home() {
   const [prompt, setPrompt] = useState(DEFAULT_PROMPT);
@@ -238,15 +238,17 @@ export default function Home() {
         });
       } else {
         const nativeContract = assertAddress(configuredContract, "Auralis contract");
+        const nativeMintArgs = [metadataUri, draft.promptHash] as const;
+        setStatus("Checking Celo gas");
         const estimatedGas = await publicClient.estimateContractGas({
           account: connectedAccount,
           address: nativeContract,
           abi: AURALIS_NFT_ABI,
           functionName: "mint",
-          args: [metadataUri, draft.promptHash],
+          args: nativeMintArgs,
           value: mintFeeWei,
         });
-        const gasLimit = (estimatedGas * BigInt(11)) / BigInt(10);
+        const gasLimit = (estimatedGas * BigInt(12)) / BigInt(10);
         const gasPrice = await publicClient.getGasPrice();
         const requiredBalance = mintFeeWei + gasLimit * gasPrice;
         const balance = await publicClient.getBalance({ address: connectedAccount });
@@ -257,16 +259,39 @@ export default function Home() {
           );
         }
 
-        hash = await walletClient.writeContract({
-          account: connectedAccount,
-          chain: selectedChain,
-          address: nativeContract,
-          abi: AURALIS_NFT_ABI,
-          functionName: "mint",
-          args: [metadataUri, draft.promptHash],
-          value: mintFeeWei,
-          gas: gasLimit,
-        });
+        setStatus("Confirm mint in wallet");
+        try {
+          hash = await walletClient.writeContract({
+            account: connectedAccount,
+            chain: selectedChain,
+            address: nativeContract,
+            abi: AURALIS_NFT_ABI,
+            functionName: "mint",
+            args: nativeMintArgs,
+            value: mintFeeWei,
+            gas: gasLimit,
+            gasPrice,
+          });
+        } catch (sendError) {
+          if (!isRetryableWalletRpcError(sendError)) {
+            throw sendError;
+          }
+
+          setStatus("Retry mint in wallet");
+          try {
+            hash = await walletClient.writeContract({
+              account: connectedAccount,
+              chain: selectedChain,
+              address: nativeContract,
+              abi: AURALIS_NFT_ABI,
+              functionName: "mint",
+              args: nativeMintArgs,
+              value: mintFeeWei,
+            });
+          } catch (retryError) {
+            throw addNativeMintContext(retryError, requiredBalance);
+          }
+        }
       }
 
       setTxHash(hash);
@@ -566,9 +591,9 @@ function createMetadataUri(draft: AuralisDraft, creator: Address): string {
       ? window.location.origin
       : (process.env.NEXT_PUBLIC_APP_URL ?? "https://auralis.app").replace(/\/$/, "");
   const params = new URLSearchParams({
-    prompt: draft.prompt,
-    hash: draft.promptHash,
-    creator,
+    p: draft.prompt,
+    h: draft.promptHash,
+    c: creator,
   });
 
   return `${origin.replace(/\/$/, "")}/api/nft?${params.toString()}`;
@@ -613,13 +638,7 @@ async function ensureCeloNetwork(provider: EthereumProvider) {
 }
 
 function readError(error: unknown, fallback: string) {
-  let message = fallback;
-
-  if (error instanceof Error && error.message) {
-    message = error.message;
-  } else if (typeof error === "object" && error && "message" in error) {
-    message = String((error as { message?: unknown }).message) || fallback;
-  }
+  const message = getErrorMessage(error, fallback);
 
   const compact = message.replace(/\s+/g, " ").trim();
   const lower = compact.toLowerCase();
@@ -636,5 +655,45 @@ function readError(error: unknown, fallback: string) {
     return "This wallet cannot switch networks automatically. Open the app on Celo and try again.";
   }
 
+  if (lower.includes("unknown rpc error") || lower.includes("jsonrpc")) {
+    return "The wallet could not broadcast the Celo mint. Make sure the wallet is on Celo, keep enough CELO for gas, then try again.";
+  }
+
   return compact.length > 260 ? `${compact.slice(0, 260)}...` : compact;
+}
+
+function getErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  if (typeof error === "object" && error && "message" in error) {
+    return String((error as { message?: unknown }).message) || fallback;
+  }
+
+  return fallback;
+}
+
+function isRetryableWalletRpcError(error: unknown): boolean {
+  const message = getErrorMessage(error, "").toLowerCase();
+
+  if (message.includes("user rejected") || message.includes("user denied") || message.includes("rejected the request")) {
+    return false;
+  }
+
+  return message.includes("unknown rpc error") || message.includes("jsonrpc") || message.includes("gas");
+}
+
+function addNativeMintContext(error: unknown, requiredBalance: bigint) {
+  const message = readError(error, "Wallet RPC failed");
+
+  if (message === "Wallet request was rejected.") {
+    return new Error(message);
+  }
+
+  return new Error(
+    `${message} Native mint preflight passed on Celo. Keep at least ${formatCelo(
+      requiredBalance,
+    )} CELO available for the mint fee plus gas, then retry.`,
+  );
 }
