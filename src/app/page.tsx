@@ -13,7 +13,7 @@ import {
   Wand2,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { createPublicClient, createWalletClient, custom, formatEther, http, type Address, type Hex } from "viem";
+import { createPublicClient, createWalletClient, custom, formatEther, formatUnits, http, type Address, type Hex } from "viem";
 import { celo, celoSepolia } from "viem/chains";
 import {
   AURALIS_CHAIN,
@@ -51,6 +51,8 @@ type MintSuccess = {
   explorerUrl: string;
 };
 
+type WalletMode = "unknown" | "browser" | "minipay";
+
 const DEFAULT_PROMPT =
   "a radiant market badge for makers who help local merchants accept stablecoin payments";
 const EXAMPLES = [
@@ -70,11 +72,13 @@ const stableFeeToken =
 const stableFeeSymbol = process.env.NEXT_PUBLIC_AURALIS_STABLE_FEE_SYMBOL || AURALIS_MINIPAY_FEE.symbol;
 const stableFeeAmount = BigInt(process.env.NEXT_PUBLIC_AURALIS_STABLE_FEE_AMOUNT || AURALIS_MINIPAY_FEE.amount);
 const mintFeeWei = BigInt(process.env.NEXT_PUBLIC_AURALIS_MINT_FEE_WEI || "2000000000000000");
-const mintFeeLabel = "0.002 CELO + gas";
+const nativeMintFeeLabel = "0.002 CELO + gas";
+const stableMintFeeLabel = `${formatTokenAmount(stableFeeAmount, AURALIS_MINIPAY_FEE_TOKEN.decimals)} ${stableFeeSymbol}`;
 
 export default function Home() {
   const [prompt, setPrompt] = useState(DEFAULT_PROMPT);
   const [account, setAccount] = useState<Address | null>(null);
+  const [walletMode, setWalletMode] = useState<WalletMode>("unknown");
   const [draft, setDraft] = useState<AuralisDraft | null>(null);
   const [status, setStatus] = useState("Ready");
   const [error, setError] = useState("");
@@ -83,6 +87,7 @@ export default function Home() {
   const [isComposing, setIsComposing] = useState(false);
   const [isMinting, setIsMinting] = useState(false);
   const successTimerRef = useRef<number | null>(null);
+  const autoConnectStartedRef = useRef(false);
 
   const shortAccount = useMemo(() => {
     if (!account) return "Not connected";
@@ -90,8 +95,48 @@ export default function Home() {
   }, [account]);
   const draftReady = Boolean(draft && draft.prompt === normalizePrompt(prompt));
 
-  const contractReady = configuredContract.length > 0;
   const explorerTx = txHash ? `${chainMeta.explorerUrl}/tx/${txHash}` : "";
+  const isMiniPaySession = walletMode === "minipay";
+  const contractReady = isMiniPaySession ? stableContract.length > 0 : configuredContract.length > 0;
+  const visibleFeeLabel = isMiniPaySession ? stableMintFeeLabel : nativeMintFeeLabel;
+  const walletSignal = isMiniPaySession ? "MiniPay" : account ? "Web wallet" : "Connect";
+
+  useEffect(() => {
+    const provider = getOptionalProvider();
+    if (!provider) return;
+
+    const detectedProvider = provider;
+    const miniPayDetected = isMiniPay(provider);
+    window.setTimeout(() => {
+      setWalletMode(miniPayDetected ? "minipay" : "browser");
+    }, 0);
+
+    if (!miniPayDetected || autoConnectStartedRef.current) {
+      return;
+    }
+
+    autoConnectStartedRef.current = true;
+
+    async function autoConnectMiniPay() {
+      setError("");
+      setStatus("Connecting MiniPay");
+
+      try {
+        const accounts = (await detectedProvider.request({
+          method: "eth_requestAccounts",
+        })) as Address[];
+
+        const connectedAccount = assertAddress(accounts[0], "wallet");
+        setAccount(connectedAccount);
+        setStatus("MiniPay connected");
+      } catch (connectError) {
+        setError(readError(connectError, "MiniPay connection failed"));
+        setStatus("Open MiniPay wallet");
+      }
+    }
+
+    void autoConnectMiniPay();
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -133,8 +178,10 @@ export default function Home() {
       })) as Address[];
 
       await ensureCeloNetwork(provider);
+      const miniPaySession = isMiniPay(provider);
+      setWalletMode(miniPaySession ? "minipay" : "browser");
       setAccount(assertAddress(accounts[0], "wallet"));
-      setStatus(isMiniPay(provider) ? "MiniPay connected" : "Wallet connected");
+      setStatus(miniPaySession ? "MiniPay connected" : "Wallet connected");
     } catch (connectError) {
       setError(readError(connectError, "Wallet connection failed"));
       setStatus("Ready");
@@ -185,10 +232,6 @@ export default function Home() {
         throw new Error("Shape this prompt before minting.");
       }
 
-      if (!configuredContract) {
-        throw new Error("Add NEXT_PUBLIC_AURALIS_NFT_ADDRESS after deploying the contract");
-      }
-
       const provider = getProvider();
       const accounts = (await provider.request({
         method: "eth_requestAccounts",
@@ -196,6 +239,8 @@ export default function Home() {
 
       await ensureCeloNetwork(provider);
       const connectedAccount = assertAddress(accounts[0], "wallet");
+      const miniPaySession = isMiniPay(provider);
+      setWalletMode(miniPaySession ? "minipay" : "browser");
       setAccount(connectedAccount);
       setIsMinting(true);
       setStatus("Confirm mint in wallet");
@@ -208,12 +253,15 @@ export default function Home() {
         chain: selectedChain,
         transport: http(chainMeta.rpcUrl),
       });
-      const isMiniPaySession = isMiniPay(provider);
-      if (isMiniPaySession && stableContract.length === 0) {
+      if (!miniPaySession && configuredContract.length === 0) {
+        throw new Error("Add NEXT_PUBLIC_AURALIS_NFT_ADDRESS after deploying the contract");
+      }
+
+      if (miniPaySession && stableContract.length === 0) {
         throw new Error("MiniPay stable mint is not configured. Add NEXT_PUBLIC_AURALIS_STABLE_NFT_ADDRESS.");
       }
 
-      const shouldUseStableFee = isMiniPaySession && stableContract.length > 0;
+      const shouldUseStableFee = miniPaySession && stableContract.length > 0;
       const metadataUri = createMetadataUri(draft, connectedAccount);
       let hash: Hex;
 
@@ -342,7 +390,7 @@ export default function Home() {
             <div className="mb-4 flex flex-wrap items-center gap-2">
               <StatusPill icon={<Radio size={14} />} label={status} />
               <StatusPill icon={<Coins size={14} />} label={chainMeta.name} />
-              <StatusPill icon={<Coins size={14} />} label={mintFeeLabel} />
+              <StatusPill icon={<Coins size={14} />} label={visibleFeeLabel} />
               <StatusPill icon={<BadgeCheck size={14} />} label={contractReady ? "Contract set" : "Deploy pending"} />
             </div>
 
@@ -483,7 +531,7 @@ export default function Home() {
 
         <section className="grid gap-3 sm:grid-cols-4">
           <Signal label="Agent" value="Compose" />
-          <Signal label="Wallet" value="MiniPay" />
+          <Signal label="Wallet" value={walletSignal} />
           <Signal label="Network" value={chainMeta.name} />
           <Signal label="ERC-8004" value="Ready" />
         </section>
@@ -566,13 +614,19 @@ function Signal({ label, value }: { label: string; value: string }) {
 }
 
 function getProvider(): EthereumProvider {
-  const provider = (window as typeof window & { ethereum?: EthereumProvider }).ethereum;
+  const provider = getOptionalProvider();
 
   if (!provider) {
     throw new Error("Open Auralis in MiniPay or a Celo-compatible wallet browser");
   }
 
   return provider;
+}
+
+function getOptionalProvider(): EthereumProvider | null {
+  if (typeof window === "undefined") return null;
+
+  return (window as typeof window & { ethereum?: EthereumProvider }).ethereum ?? null;
 }
 
 function isMiniPay(provider: EthereumProvider): boolean {
@@ -582,6 +636,12 @@ function isMiniPay(provider: EthereumProvider): boolean {
 function formatCelo(value: bigint): string {
   const [whole, decimals = ""] = formatEther(value).split(".");
   const trimmed = decimals.slice(0, 4).replace(/0+$/, "");
+  return trimmed ? `${whole}.${trimmed}` : whole;
+}
+
+function formatTokenAmount(value: bigint, decimals: number): string {
+  const [whole, fraction = ""] = formatUnits(value, decimals).split(".");
+  const trimmed = fraction.slice(0, 6).replace(/0+$/, "");
   return trimmed ? `${whole}.${trimmed}` : whole;
 }
 
