@@ -61,6 +61,17 @@ The app uses two contracts. `AuralisGenesis` handles normal CELO wallet minting,
 
 Auralis defaults to USDm for MiniPay minting. See [docs/MINIPAY_COMPATIBILITY.md](docs/MINIPAY_COMPATIBILITY.md).
 
+## Release Checks
+
+Before publishing a Vercel deployment, run:
+
+```bash
+npm run lint
+npm run build
+```
+
+After the build passes, open the deployed URL in a normal browser and in MiniPay. Confirm the CELO mint path still shows the native contract and the MiniPay path still shows the stablecoin contract.
+
 ## Agent File
 
 ERC-8004 starter metadata is served from:
