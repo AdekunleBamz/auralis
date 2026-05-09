@@ -25,6 +25,13 @@ This address is committed in:
 - The default MiniPay mint fee is `0.0002 USDm`.
 - The user approves USDm, then confirms the stablecoin mint.
 
+## Stablecoin Handoff Checks
+
+- Confirm `NEXT_PUBLIC_AURALIS_STABLE_NFT_ADDRESS` points to the latest stablecoin contract.
+- Confirm `NEXT_PUBLIC_AURALIS_STABLE_FEE_TOKEN` matches Celo Mainnet USDm before a production MiniPay test.
+- Confirm the approval transaction completes before asking the user to mint.
+- Keep the MiniPay flow on the configured chain instead of prompting a chain switch.
+
 ## Web Wallet Flow
 
 Normal browser wallets can mint through `AuralisGenesis.mint(...)` with a native CELO fee.
