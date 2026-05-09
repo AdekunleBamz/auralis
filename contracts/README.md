@@ -19,3 +19,7 @@ The app reads deployed contract addresses from environment variables:
 NEXT_PUBLIC_AURALIS_NFT_ADDRESS=<deployed AuralisGenesis address>
 NEXT_PUBLIC_AURALIS_STABLE_NFT_ADDRESS=<deployed AuralisGenesisStable address>
 ```
+
+## Address Sync
+
+When a contract is redeployed, update the environment variables first, then update the root README and deployment guide with the same addresses. Keeping the three locations aligned makes MiniPay support checks easier to audit.
