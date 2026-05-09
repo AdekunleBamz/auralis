@@ -60,3 +60,9 @@ NEXT_PUBLIC_AURALIS_STABLE_FEE_SYMBOL=USDm
 ```
 
 `AuralisGenesis` holds CELO fees directly. `AuralisGenesisStable` holds native and stablecoin fees directly. The configured owner or treasury can withdraw later.
+
+## Post-Deploy Smoke Check
+
+- Read `owner`, `treasury`, and mint fee values from both contracts in Remix.
+- Confirm both deployed addresses are copied into the matching `NEXT_PUBLIC_AURALIS_*` variables.
+- Load the app once with a web wallet and once inside MiniPay before sharing the production URL.
