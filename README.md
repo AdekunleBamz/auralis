@@ -57,6 +57,8 @@ NEXT_PUBLIC_AURALIS_STABLE_FEE_AMOUNT=200000000000000
 NEXT_PUBLIC_AURALIS_STABLE_FEE_SYMBOL=USDm
 ```
 
+See [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md) for what each variable controls.
+
 The app uses two contracts. `AuralisGenesis` handles normal CELO wallet minting, while `AuralisGenesisStable` handles MiniPay USDm minting. Both contracts hold their own fees and let the owner or treasury withdraw later.
 
 ## MiniPay
