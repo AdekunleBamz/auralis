@@ -12,3 +12,7 @@ Auralis reads public deployment settings from `NEXT_PUBLIC_*` variables so the b
 | `NEXT_PUBLIC_AURALIS_STABLE_FEE_TOKEN` | Stablecoin fee token address. The production default is Celo Mainnet USDm. |
 | `NEXT_PUBLIC_AURALIS_STABLE_FEE_AMOUNT` | Stablecoin fee amount in token base units. |
 | `NEXT_PUBLIC_AURALIS_STABLE_FEE_SYMBOL` | Fee label shown in the UI. |
+
+## Unit Notes
+
+The CELO fee is stored in wei. The USDm fee is stored in USDm base units, and USDm uses 18 decimals on Celo mainnet.
