@@ -68,3 +68,7 @@ NEXT_PUBLIC_AURALIS_STABLE_FEE_SYMBOL=USDm
 - Read `owner`, `treasury`, and mint fee values from both contracts in Remix.
 - Confirm both deployed addresses are copied into the matching `NEXT_PUBLIC_AURALIS_*` variables.
 - Load the app once with a web wallet and once inside MiniPay before sharing the production URL.
+
+## Deployment Record
+
+Keep the native contract address, stable contract address, owner wallet, treasury wallet, and deployment transaction hashes together in the release notes for the deployment.
