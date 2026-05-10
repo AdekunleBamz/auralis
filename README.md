@@ -80,6 +80,8 @@ After the build passes, open the deployed URL in a normal browser and in MiniPay
 
 Use [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md) as the full pre-release pass.
 
+Review [docs/SECURITY_NOTES.md](docs/SECURITY_NOTES.md) before changing production wallet or contract settings.
+
 ## Agent File
 
 ERC-8004 starter metadata is served from:
