@@ -6,6 +6,7 @@
 - Confirm the wallet switch prompt is only shown outside MiniPay.
 - Shape a prompt before attempting to mint.
 - Confirm the mint button stays disabled when the preview is stale.
+- Use at least one custom prompt and one built-in example prompt.
 
 ## MiniPay
 
