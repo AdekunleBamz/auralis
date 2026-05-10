@@ -25,6 +25,8 @@ treasury_: <treasury wallet address>
 mintFeeWei_: 2000000000000000
 ```
 
+Use an owner wallet that can safely update fees and withdraw funds after launch. Use a treasury wallet that can receive CELO without extra contract calls.
+
 If the contract was deployed with a zero mint fee, update it later from Remix:
 
 ```text
