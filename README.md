@@ -76,6 +76,8 @@ npm run build
 
 After the build passes, open the deployed URL in a normal browser and in MiniPay. Confirm the CELO mint path still shows the native contract and the MiniPay path still shows the stablecoin contract.
 
+Use [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md) as the full pre-release pass.
+
 ## Agent File
 
 ERC-8004 starter metadata is served from:
