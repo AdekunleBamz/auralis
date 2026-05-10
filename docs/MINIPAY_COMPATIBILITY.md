@@ -31,6 +31,7 @@ This address is committed in:
 - Confirm `NEXT_PUBLIC_AURALIS_STABLE_NFT_ADDRESS` points to the latest stablecoin contract.
 - Confirm `NEXT_PUBLIC_AURALIS_STABLE_FEE_TOKEN` matches Celo Mainnet USDm before a production MiniPay test.
 - Confirm the approval transaction completes before asking the user to mint.
+- Confirm the mint transaction is sent only after the approval receipt is available.
 - Keep the MiniPay flow on the configured chain instead of prompting a chain switch.
 
 ## Web Wallet Flow
