@@ -89,3 +89,5 @@ public/.well-known/agent.json
 ```
 
 Update the domain, wallet address, and hosted image URL before registering the agent on Celo mainnet.
+
+The generated NFT metadata endpoints are documented in [docs/METADATA_API.md](docs/METADATA_API.md).
