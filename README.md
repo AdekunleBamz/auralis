@@ -16,6 +16,8 @@ The app runs on:
 http://localhost:3000
 ```
 
+Keep local secrets in `.env.local`. The committed `.env.example` file is only a shape reference for contract addresses, chain selection, and mint fee values.
+
 The app installs the published SDK from npm:
 
 ```text
