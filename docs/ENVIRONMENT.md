@@ -1,0 +1,14 @@
+# Environment Reference
+
+Auralis reads public deployment settings from `NEXT_PUBLIC_*` variables so the browser can select the right Celo contracts.
+
+| Variable | Purpose |
+| --- | --- |
+| `NEXT_PUBLIC_APP_URL` | Base URL used when the app builds NFT metadata links outside the browser. |
+| `NEXT_PUBLIC_CELO_CHAIN_ID` | Celo chain id. Use `42220` for mainnet and the SDK-supported testnet id for test deploys. |
+| `NEXT_PUBLIC_AURALIS_NFT_ADDRESS` | Native CELO mint contract address. |
+| `NEXT_PUBLIC_AURALIS_STABLE_NFT_ADDRESS` | Stablecoin mint contract address used by MiniPay. |
+| `NEXT_PUBLIC_AURALIS_MINT_FEE_WEI` | Native mint fee in wei. |
+| `NEXT_PUBLIC_AURALIS_STABLE_FEE_TOKEN` | Stablecoin fee token address. The production default is Celo Mainnet USDm. |
+| `NEXT_PUBLIC_AURALIS_STABLE_FEE_AMOUNT` | Stablecoin fee amount in token base units. |
+| `NEXT_PUBLIC_AURALIS_STABLE_FEE_SYMBOL` | Fee label shown in the UI. |
