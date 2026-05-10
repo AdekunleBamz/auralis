@@ -9,3 +9,4 @@ Use this checklist before sharing a production URL.
 - Open the deployed URL inside MiniPay.
 - Confirm the MiniPay path shows the USDm fee and stable contract.
 - Confirm the browser wallet path shows the native CELO fee and native contract.
+- Open one generated `/api/nft` URL and confirm it returns metadata JSON.
