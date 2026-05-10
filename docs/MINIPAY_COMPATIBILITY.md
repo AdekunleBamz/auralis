@@ -20,6 +20,7 @@ This address is committed in:
 ## MiniPay Flow
 
 - The app detects MiniPay through `window.ethereum.isMiniPay` or the browser user agent.
+- The detection result only selects the wallet flow; the connected account still comes from `eth_requestAccounts`.
 - MiniPay sessions do not call `wallet_switchEthereumChain`.
 - MiniPay minting uses `AuralisGenesisStable.mintWithStable(...)`.
 - The default MiniPay mint fee is `0.0002 USDm`.
