@@ -20,6 +20,8 @@ NEXT_PUBLIC_AURALIS_NFT_ADDRESS=<deployed AuralisGenesis address>
 NEXT_PUBLIC_AURALIS_STABLE_NFT_ADDRESS=<deployed AuralisGenesisStable address>
 ```
 
+If the SDK contract package changes, update the app dependency and repeat the deployment smoke check before changing production addresses.
+
 ## Address Sync
 
 When a contract is redeployed, update the environment variables first, then update the root README and deployment guide with the same addresses. Keeping the three locations aligned makes MiniPay support checks easier to audit.
