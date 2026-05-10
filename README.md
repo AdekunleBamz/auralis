@@ -30,6 +30,8 @@ For active SDK development from the sibling folder, run:
 npm install ../auralis-sdk
 ```
 
+Switch back to the published package before release checks so production builds match the version installed by Vercel.
+
 ## Contract
 
 Deploy manually from Remix using:
