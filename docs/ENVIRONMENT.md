@@ -16,3 +16,7 @@ Auralis reads public deployment settings from `NEXT_PUBLIC_*` variables so the b
 ## Unit Notes
 
 The CELO fee is stored in wei. The USDm fee is stored in USDm base units, and USDm uses 18 decimals on Celo mainnet.
+
+## Vercel Notes
+
+Set the same public variables in Vercel before promoting a production deployment. Changing contract addresses in Vercel requires a fresh deployment before browsers can read the new values.
