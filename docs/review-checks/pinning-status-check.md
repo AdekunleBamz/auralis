@@ -3,3 +3,4 @@
 - Confirm pinned metadata returns a successful gateway response.
 - Reopen the link after a short delay to catch propagation issues.
 - Note any failed pin before minting.
+- Keep the pinning provider response id with release evidence.
