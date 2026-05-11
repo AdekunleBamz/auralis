@@ -3,3 +3,4 @@
 - Review metadata descriptions before pinning.
 - Confirm descriptions are specific enough to identify the work.
 - Remove internal review notes from public metadata fields.
+- Keep one approved description example in release evidence.
