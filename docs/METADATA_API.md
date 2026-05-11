@@ -26,3 +26,5 @@ The endpoint returns ERC-721 style metadata. If `h` is provided and does not mat
 ## Cache Behavior
 
 Successful NFT metadata responses are immutable because the prompt, creator, and prompt hash fully describe the generated artifact.
+
+Keep one accepted response body with the mint evidence so reviewers can compare future schema changes.
