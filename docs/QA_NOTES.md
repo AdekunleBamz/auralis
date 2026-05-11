@@ -14,3 +14,4 @@
 - Confirm the app auto-connects when MiniPay exposes an account.
 - Confirm the fee label uses USDm.
 - Confirm the app does not ask MiniPay to switch chains.
+- Save the MiniPay build link beside the wallet address used for the smoke test.
