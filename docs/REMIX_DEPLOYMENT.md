@@ -72,3 +72,5 @@ NEXT_PUBLIC_AURALIS_STABLE_FEE_SYMBOL=USDm
 ## Deployment Record
 
 Keep the native contract address, stable contract address, owner wallet, treasury wallet, and deployment transaction hashes together in the release notes for the deployment.
+
+Include the Remix compiler version beside each deployment hash when handing off release evidence.
