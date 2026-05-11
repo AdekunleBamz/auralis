@@ -49,3 +49,5 @@ The app keeps both paths visible so reviewers can see the standard web flow and 
 ## Reviewer Notes
 
 When sharing a MiniPay review build, include the deployed stable contract address and the USDm token address beside the URL so reviewers can verify both prompts against the configured environment.
+
+Capture the MiniPay app version used for the review when fee or wallet behavior changes.
