@@ -22,3 +22,5 @@ The CELO fee is stored in wei. The USDm fee is stored in USDm base units, and US
 Set the same public variables in Vercel before promoting a production deployment. Changing contract addresses in Vercel requires a fresh deployment before browsers can read the new values.
 
 Unset contract address variables keep the UI in a deploy-pending state, which is useful for local development before contracts are available.
+
+Record the Vercel environment, reviewer, and deploy target whenever public contract variables change.
