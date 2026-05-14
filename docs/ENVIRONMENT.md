@@ -4,7 +4,7 @@ Auralis reads public deployment settings from `NEXT_PUBLIC_*` variables so the b
 
 | Variable | Purpose |
 | --- | --- |
-| `NEXT_PUBLIC_APP_URL` | Base URL used when the app builds NFT metadata links outside the browser. |
+| `NEXT_PUBLIC_APP_URL` | Base URL used when the app builds NFT metadata links outside the browser. Falls back to the request origin when not set. |
 | `NEXT_PUBLIC_CELO_CHAIN_ID` | Celo chain id. Use `42220` for mainnet and the SDK-supported testnet id for test deploys. |
 | `NEXT_PUBLIC_AURALIS_NFT_ADDRESS` | Native CELO mint contract address. |
 | `NEXT_PUBLIC_AURALIS_STABLE_NFT_ADDRESS` | Stablecoin mint contract address used by MiniPay. |
