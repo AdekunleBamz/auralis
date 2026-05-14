@@ -3,6 +3,7 @@
 Use this checklist before sharing a production URL.
 
 - Run `npm run lint`.
+- Run `npm run typecheck`.
 - Run `npm run build`.
 - Confirm the Vercel project has the current `NEXT_PUBLIC_AURALIS_*` values.
 - Open the deployed URL in a normal browser wallet.
