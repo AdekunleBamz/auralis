@@ -13,6 +13,7 @@ export const AURALIS_MINIPAY_FEE_TOKEN = CELO_MAINNET_USDM;
 /** Fee descriptor for MiniPay minting: amount in USDm base units and display label. */
 export const AURALIS_MINIPAY_FEE = {
   symbol: "USDm",
+  decimals: 18,
   amount: "200000000000000",
   display: "0.0002 USDm",
 } as const;
