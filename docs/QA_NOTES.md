@@ -15,3 +15,9 @@
 - Confirm the fee label uses USDm.
 - Confirm the app does not ask MiniPay to switch chains.
 - Save the MiniPay build link beside the wallet address used for the smoke test.
+
+## Metadata API
+
+- Run `npm run typecheck` locally before sharing a preview link.
+- Call `/api/nft` with a known prompt and confirm the returned JSON includes `name`, `description`, and `image`.
+- Confirm a mismatched prompt hash returns a 400 status instead of metadata.
