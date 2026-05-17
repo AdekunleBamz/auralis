@@ -25,3 +25,5 @@ If the SDK contract package changes, update the app dependency and repeat the de
 ## Address Sync
 
 When a contract is redeployed, update the environment variables first, then update the root README and deployment guide with the same addresses. Keeping the three locations aligned makes MiniPay support checks easier to audit.
+
+Record the deployment transaction hash beside each synced address so future reviewers can trace the exact contract source.
