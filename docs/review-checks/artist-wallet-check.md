@@ -4,3 +4,4 @@
 - Record the wallet environment and chain used during review.
 - Note any account mismatch before creating metadata.
 - Record the short wallet label used in screenshots for the review.
+- Confirm the same wallet label appears in the final mint evidence.
