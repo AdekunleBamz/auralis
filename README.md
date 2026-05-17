@@ -75,6 +75,7 @@ Before publishing a Vercel deployment, run:
 
 ```bash
 npm run lint
+npm run typecheck
 npm run build
 ```
 
