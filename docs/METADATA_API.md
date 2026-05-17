@@ -28,3 +28,5 @@ The endpoint returns ERC-721 style metadata. If `h` is provided and does not mat
 Successful NFT metadata responses are immutable because the prompt, creator, and prompt hash fully describe the generated artifact.
 
 Keep one accepted response body with the mint evidence so reviewers can compare future schema changes.
+
+Store the prompt hash with that response body so support can reproduce the same metadata URL later.
