@@ -4,3 +4,4 @@
 - Compare the transaction hash with the wallet activity entry.
 - Record the hash once the mint is confirmed.
 - Capture the confirmation timestamp in release notes.
+- Confirm the UI returns to a usable state after confirmation.
