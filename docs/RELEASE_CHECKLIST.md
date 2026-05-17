@@ -5,6 +5,7 @@ Use this checklist before sharing a production URL.
 - Run `npm run lint`.
 - Run `npm run typecheck`.
 - Run `npm run build`.
+- Confirm the build used the same SDK version that will run in production.
 - Confirm the Vercel project has the current `NEXT_PUBLIC_AURALIS_*` values.
 - Open the deployed URL in a normal browser wallet.
 - Open the deployed URL inside MiniPay.
