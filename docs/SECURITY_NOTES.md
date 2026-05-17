@@ -7,3 +7,4 @@
 - Recheck fee values after every contract redeploy.
 - Review the treasury wallet in production settings before each stablecoin mint release.
 - Do not include stablecoin fee amounts or prompt hashes in user-visible error messages.
+- Review screenshots before sharing them so wallet prompts do not expose private account details.
