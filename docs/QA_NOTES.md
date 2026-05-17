@@ -3,6 +3,7 @@
 ## Browser Wallet
 
 - Connect a Celo-compatible wallet.
+- Refresh once after connecting and confirm the wallet status remains understandable.
 - Confirm the wallet switch prompt is only shown outside MiniPay.
 - Shape a prompt before attempting to mint.
 - Confirm the mint button stays disabled when the preview is stale.
