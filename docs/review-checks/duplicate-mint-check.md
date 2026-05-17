@@ -4,3 +4,4 @@
 - Confirm only one wallet request is created.
 - Record duplicate prompt behavior as a release blocker.
 - Capture the button state before and after the duplicate attempt.
+- Confirm the success message does not invite a second click while confirmation is pending.
