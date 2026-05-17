@@ -4,3 +4,4 @@
 - Keep private wallet data and secrets out of prompt text.
 - Store only the accepted output in release evidence.
 - Note the rejected prompt category when a safety guard blocks minting.
+- Confirm prompt examples do not ask users to enter seed phrases or private keys.
