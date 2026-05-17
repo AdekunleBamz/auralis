@@ -24,3 +24,5 @@ Set the same public variables in Vercel before promoting a production deployment
 Unset contract address variables keep the UI in a deploy-pending state, which is useful for local development before contracts are available.
 
 Record the Vercel environment, reviewer, and deploy target whenever public contract variables change.
+
+Before sharing a preview link, compare the browser-visible values against Vercel so stale deployments are caught early.
