@@ -433,7 +433,10 @@ export default function Home() {
             </div>
 
             {error ? (
-              <p className="mt-4 max-w-full overflow-hidden break-words rounded-lg border border-[#ef5f64]/25 bg-[#fff0ee] px-3 py-2 text-sm font-bold text-[#982b30] [overflow-wrap:anywhere]">
+              <p
+                className="mt-4 max-w-full overflow-hidden break-words rounded-lg border border-[#ef5f64]/25 bg-[#fff0ee] px-3 py-2 text-sm font-bold text-[#982b30] [overflow-wrap:anywhere]"
+                role="alert"
+              >
                 {error}
               </p>
             ) : null}
