@@ -6,7 +6,7 @@ Auralis is a MiniPay-first Celo app where a user writes a short text seed, the A
 
 ```bash
 cp .env.example .env.local
-npm install
+npm ci
 npm run dev
 ```
 
