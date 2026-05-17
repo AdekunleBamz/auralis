@@ -14,6 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Auralis",
+  applicationName: "Auralis",
   description: "A MiniPay-first agent for shaping text into Celo NFT artifacts.",
   icons: {
     icon: "/auralis-logo.svg",
