@@ -4,3 +4,4 @@
 - Confirm descriptions are specific enough to identify the work.
 - Remove internal review notes from public metadata fields.
 - Keep one approved description example in release evidence.
+- Check that descriptions remain useful when shown without the image.
