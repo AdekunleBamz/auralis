@@ -2,6 +2,7 @@
   "name": "auralis",
   "version": "0.1.0",
   "private": true,
+  "description": "MiniPay-first Celo NFT minting app for AI-shaped Auralis artwork.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/adekunlebamz/auralis.git"
@@ -10,6 +11,13 @@
     "url": "https://github.com/adekunlebamz/auralis/issues"
   },
   "homepage": "https://github.com/adekunlebamz/auralis#readme",
+  "keywords": [
+    "auralis",
+    "celo",
+    "minipay",
+    "nft",
+    "metadata"
+  ],
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build --webpack",
